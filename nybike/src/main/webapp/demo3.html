@@ -1,0 +1,114 @@
+<!DOCTYPE html>  
+<html>
+<head>  
+<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />  
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />  
+<title>Hello, World</title>  
+<style type="text/css">  
+html{height:100%}  
+body{height:100%;margin:0px;padding:0px}  
+#container{height:100%}  
+#main{
+	height: 200px;
+	width: 400px;
+	margin: auto;
+}
+
+</style>  
+<link rel="stylesheet" href="css/page.css">
+
+
+<script type="text/javascript" src="http://api.map.baidu.com/api?v=3.0&ak=FjAwu9GZUOHMw7fPk7B7sMUeX0hGTbDp">
+//v3.0版本的引用方式：src="http://api.map.baidu.com/api?v=3.0&ak=您的密钥"
+</script>
+<script type="text/javascript" src="js/jquery-1.11.0.min.js"></script>
+<script type="text/javascript" src="js/demo3.js"></script>
+<script type="text/javascript" src="js/echarts.min.js"></script>
+
+</head>  
+ 
+<body>
+<!-- 地图的容器：设置地图显示的宽高和位置-->
+<div id="container"></div> 
+
+<script type="text/javascript"> 
+	
+	initIcon();// 初始化所有Icon
+
+	// 创建地图实例 ，绑定容器的id
+	var map = new BMap.Map("container");
+	// 创建点坐标 ,先经度，后纬度
+	var point = new BMap.Point(-73.985669, 40.748405);
+	// 初始化地图，设置中心点坐标和地图级别  
+	map.centerAndZoom(point, 15);
+	//开启鼠标滚轮缩放
+	map.enableScrollWheelZoom(true);     
+	// 设置控件的配置
+	var opts = {anchor: BMAP_ANCHOR_BOTTOM_RIGHT}
+	// 创建控件对象，并显示在地图上
+	map.addControl(new BMap.NavigationControl(opts));
+	
+	
+	// var info_url="https://gbfs.citibikenyc.com/gbfs/en/station_information.json";
+	// var status_url="https://gbfs.citibikenyc.com/gbfs/en/station_status.json";
+	var info_url="info"; // InfoServlet
+	var status_url="status"; // StatusServlet
+	
+	var bikeLevelMap=new Map();// sid,bikeLevel
+	var itemMap = new Map();//保存infoItem的Map
+	var isBigIcon=true;//代表当前使用的图标类型
+	var markerArr=[];// 保存所有Marker的数组
+	
+	map.addEventListener("zoomend", function(){    
+	    var zoomLevel=this.getZoom();
+	    // 缩放级别小于15,并且当前使用大图标
+	    if(zoomLevel<15 && isBigIcon==true){
+	    	switchIcon(true); // 执行图标切换
+	    	isBigIcon=false; // 表示当前已经使用小图标 
+	    }
+	    if(zoomLevel>14 && isBigIcon==false){
+	    	switchIcon(false); // 执行图标切换
+	    	isBigIcon=true; // 表示当前已经使用小图标 
+	    }
+	});
+	
+	$.get(status_url,function(statusData){
+		var stations=statusData.data.stations;
+		for(var index in stations){
+			var sid = stations[index].station_id;
+			var nba = stations[index].num_bikes_available;
+			var nda = stations[index].num_docks_available;
+			var bikeLevel = getBikeLevel(nba,nda);
+			// 将站点的id和bikeLevel存入map集合
+			bikeLevelMap.set(sid,bikeLevel);
+			// 创建infoItem，封装站点的数据
+			var infoItem={};
+			infoItem.sid=sid;
+			infoItem.nba=nba;
+			infoItem.nda=nda;
+			itemMap.set(sid,infoItem);
+		}
+		
+		// 发送ajax请求站点信息数据
+		$.get(info_url,function(infoData){
+			// 从infoData中解析出每个站点的经纬度
+			var stations=infoData.data.stations;
+			for(var index in stations){
+				var sid = stations[index].station_id;
+				var lon = stations[index].lon;
+				var lat = stations[index].lat;
+				var name=stations[index].name;
+				var shortName=stations[index].short_name;
+				// 向infoItem中绑定数据
+				var infoItem = itemMap.get(sid);
+				infoItem.name = name;
+				infoItem.shortName = shortName;
+				// 使用sid从map集合中查询bikeLevel
+				var bikeLevel=bikeLevelMap.get(sid);
+				addMarker(lon,lat,bikeLevel,infoItem);
+			}
+		});
+	});
+	</script>  
+</body>  
+</html>

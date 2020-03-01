@@ -1,0 +1,95 @@
+<!DOCTYPE html>  
+<html>
+<head>  
+<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />  
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />  
+<title>Hello, World</title>  
+<style type="text/css">  
+html{height:100%}  
+body{height:100%;margin:0px;padding:0px}  
+#container{height:50%}  
+#main{height:400px;width:300px;margin:auto;}
+</style>  
+<script type="text/javascript" src="http://api.map.baidu.com/api?v=3.0&ak=FjAwu9GZUOHMw7fPk7B7sMUeX0hGTbDp">
+//v3.0版本的引用方式：src="http://api.map.baidu.com/api?v=3.0&ak=您的密钥"
+</script>
+<script type="text/javascript" src="js/jquery-1.11.0.min.js"></script>
+<script type="text/javascript" src="js/demo2.js"></script>
+<script type="text/javascript" src="js/echarts.min.js"></script>
+<link type="text/css" rel="styleSheet"  href="css/page.css" />
+</head>  
+ 
+<body>  
+<div id="container"></div> 
+<div id="main"></div>
+<script type="text/javascript"> 
+// 创建地图实例  
+var map = new BMap.Map("container");
+// 创建点坐标  
+var point = new BMap.Point(-73.9869,40.7479);
+// 初始化地图，设置中心点坐标和地图级别  
+map.centerAndZoom(point, 15);
+//当前是大图标
+var isBigIcon = true;
+//保留所有marker的数组
+var markerArr = [];
+var opts = {anchor: BMAP_ANCHOR_BOTTOM_RIGHT}
+map.enableScrollWheelZoom(true);
+map.addControl(new BMap.NavigationControl(opts));
+
+//var info_url="https://gbfs.citibikenyc.com/gbfs/en/station_information.json";
+//var status_url="https://gbfs.citibikenyc.com/gbfs/en/station_status.json";
+var info_url="info";
+var status_url="status";
+var bikeLevelMap = new Map();
+var itemMap = new Map();
+map.addEventListener("zoomend", function(){     
+    var zoomLevel = this.getZoom();
+    if(zoomLevel < 15 && isBigIcon == true){
+    	switchIcon(true);
+    	isBigIcon = false;
+    }
+    if(zoomLevel >=15 && isBigIcon == false){
+    	switchIcon(false);
+    	isBigIcon = true;
+    }
+});
+//发送ajax请求站点状态信息数据
+$.get(status_url,function(statusData){
+	//console.log(infoData);
+	var data=statusData.data.stations;		
+	for(var i=0;i<data.length;i++){	
+		var sid = data[i].station_id;
+		var nba = data[i].num_bikes_available;
+		var nda = data[i].num_docks_available;
+		var bikeLevel = getBikeLevel(nba,nda);	
+		bikeLevelMap.set(sid,bikeLevel);	
+		//创建infoItem,封装站点数据
+		var infoItem = {};
+		infoItem.sid=sid;
+		infoItem.nba=nba;
+		infoItem.nda=nda;
+		itemMap.set(sid,infoItem);
+	}
+	//发送ajax请求站点信息数据
+	$.get(info_url,function(infoData){
+		var data=infoData.data.stations;		
+		for(var i=0;i<data.length;i++){		
+			var lon = data[i].lon;
+			var lat = data[i].lat;
+			var sid = data[i].station_id;			
+			var name = data[i].name;
+			var shortName = data[i].short_name;
+			var infoItem = itemMap.get(sid);
+			infoItem.name = name;
+			infoItem.shortName = shortName;
+			//使用sid从map集合中查询bikeLevel
+			var bikeLevel = bikeLevelMap.get(sid);		
+			addMarker(lon,lat,bikeLevel,infoItem);
+		}		
+	});
+});	
+
+</script>  
+</body>  
+</html>

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>nyl 纽约地图</title>
+<style type="text/css">
+html {
+	height: 100%
+}
+
+body {
+	height: 100%;
+	margin: 0px;
+	padding: 0px
+}
+
+#container {
+	height: 100%
+}
+</style>
+<script type="text/javascript"
+	src="http://api.map.baidu.com/api?v=3.0&ak=Sntrs6h79DUiPXSPzcmW9n2ta8F0C7Oh">
+	//v3.0版本的引用方式：src="http://api.map.baidu.com/api?v=3.0&ak=您的密钥"
+</script>
+</head>
+
+<body>
+	<div id="container"></div>
+	<script type="text/javascript">
+	    // 创建地图实例 
+		var map = new BMap.Map("container");
+		// 创建点坐标，先经度，后纬度 
+		//帝国大厦: -73.98634850978851, 40.74851681036899
+		var point = new BMap.Point(-73.98634850978851,40.74851681036899);
+		// 初始化地图，设置中心点坐标和地图级别
+		map.centerAndZoom(point, 14);
+		var marker = new BMap.Marker(point);        // 创建标注    
+		map.addOverlay(marker);                     // 将标注添加到地图中 
+		
+	</script>
+</body>
+</html>

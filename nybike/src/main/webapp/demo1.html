@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<script type="text/javascript" src="js/jquery-1.11.0.min.js"></script>
+<!-- 引入 ECharts 文件 -->
+<script src="js/echarts.min.js"></script>
+</head>
+<body>
+<div id="container"></div>
+<script type="text/javascript">
+var map = new BMap.Map("container"); 
+map.centerAndZoom(new BMap.Point(116.404, 39.915), 14); 
+var riding = new BMap.RidingRoute(map, { 
+    renderOptions: { 
+        map: map, 
+        autoViewport: true 
+    }
+});
+var start = new BMap.Point(-73.98569, 40.748449);
+var end = new BMap.Point(-73.989122, 40.749064);
+riding.search(start, end);
+</script>
+</body>
+</html>

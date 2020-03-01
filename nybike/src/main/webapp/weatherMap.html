@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html style="height: 100%">
+   <head>
+       <meta charset="utf-8">
+   </head>
+   <body style="height: 100%; margin: 0">
+       <div id="container" style="height: 100%"></div>
+       <script type="text/javascript" src="js/jquery-1.11.0.min.js"></script>
+       <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
+       <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/echarts-gl/dist/echarts-gl.min.js"></script>
+       <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/echarts-stat/dist/ecStat.min.js"></script>
+       <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/echarts/dist/extension/dataTool.min.js"></script>
+       <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/echarts/map/js/china.js"></script>
+       <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/echarts/map/js/world.js"></script>
+       <script type="text/javascript" src="http://api.map.baidu.com/api?v=3.0&ak=FjAwu9GZUOHMw7fPk7B7sMUeX0hGTbDp">
+       <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/echarts/dist/extension/bmap.min.js"></script>
+       <script type="text/javascript">
+       var weather_url="weather"; 
+       var data = [];
+       data.push(['product', '男', '女', '未知']);
+     //发送ajax请求站点状态信息数据
+       $.get(weather_url,function(statusData){
+    	   console.log(statusData);
+    	   
+    	 //  var i = 0;
+    	   for(var index in statusData){  
+    		  
+    		   if(index % 3 == 0){
+    			   var weatherArr = [];
+    			   weatherArr.push(statusData[index].types);
+    			   weatherArr.push(statusData[index].duration); 
+        		   weatherArr.push(statusData[parseInt(index)+1].duration); 
+        		   weatherArr.push(statusData[parseInt(index)+2].duration); 
+        		   data.push(weatherArr);
+    		   }
+    		     		   
+    	   }
+    	   
+    	   console.log(data);
+    	   var dom = document.getElementById("container");
+    	   var myChart = echarts.init(dom);
+    	   var app = {};
+    	   option = null;
+    	   option = {
+    	       legend: {},
+    	       tooltip: {},
+    	       dataset: {
+    	           source: data
+    	       },
+    	       xAxis: {type: 'category'},
+    	       yAxis: {},
+    	       // Declare several bar series, each will be mapped
+    	       // to a column of dataset.source by default.
+    	       series: [
+    	           {type: 'bar'},
+    	           {type: 'bar'},
+    	           {type: 'bar'}
+    	       ]
+    	   };
+    	   ;
+    	   if (option && typeof option === "object") {
+    	       myChart.setOption(option, true);
+    	   }
+       });
+  //  console.log(data);
+
+       </script>
+   </body>
+</html>

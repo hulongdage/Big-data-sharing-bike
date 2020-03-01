@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<!-- 引入 ECharts 文件 -->
+<script type="text/javascript" src="js/jquery-1.11.0.min.js"></script>
+<script src="js/echarts.min.js"></script>   
+</head>
+<body>
+    <!-- 为 ECharts 准备一个具备大小（宽高）的 DOM -->
+    <div id="main" style="width: 1500px;height:600px;"></div>
+    <script type="text/javascript">
+        var url = "cusSub";
+        $.get(url,function(result){
+        	var cusList = result.cusList;
+        	var subList = result.subList;
+        	 // 基于准备好的dom，初始化echarts实例
+            var myChart = echarts.init(document.getElementById('main'));
+
+            // 指定图表的配置项和数据
+            var option = {
+                title: {
+                    text: '游客与会员每天骑行时长对比'
+                },
+                tooltip: {},
+                legend: {
+                    data:['游客','会员']
+                },
+                xAxis: {
+                    data: ["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30"]
+                },
+                yAxis: {},
+                series: [{
+                    name: '游客',
+                  //  type: 'bar',
+                    type: 'line',
+                    data: cusList
+                },
+                {
+                    name: '会员',
+                //  type: 'bar',
+                    type: 'line',
+                    data: subList
+                }]
+            };
+
+            // 使用刚指定的配置项和数据显示图表。
+            myChart.setOption(option);
+        });
+       
+    </script>
+</body>
+</html>
